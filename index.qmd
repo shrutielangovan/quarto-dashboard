@@ -46,7 +46,7 @@ fig_location = px.scatter_mapbox(
 )
 
 fig_location.update_layout(
-    autosize=False
+    autosize=True
 )
 
 fig_location.show()
