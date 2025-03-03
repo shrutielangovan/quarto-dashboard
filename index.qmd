@@ -7,6 +7,9 @@ format:
         code-fold: true
 theme: cosmo
 ---
+## Analysis of Appointment Type
+
+To understand patient visit patterns, I examined the distribution of appointment types within the dataset. The resulting table and bar plot clearly demonstrate that the majority of patients sought treatment in Chiropractic, Medical Doctor, Occupational Therapy, or Physical Therapy appointments.
 
 ```{python}
 #| include: true
@@ -35,6 +38,14 @@ fig_weekly = px.bar(appoinment_count_df[appoinment_count_df['Appointment Type'].
                     title="Appointment Distribution")
 fig_weekly.show()
 
+```
+
+## Analysis of Patient Appointment Types and Geographic Distribution
+
+The map below displays patient appointment locations, with markers indicating clinic locations for the most recent visits. Use the interactive filter to view clinic locations based on specific appointment types.
+
+```{python}
+#| include: true
 fig_location = px.scatter_mapbox(
     df_long,
     lon='Longitude',
@@ -47,11 +58,19 @@ fig_location = px.scatter_mapbox(
 )
 
 fig_location.update_layout(
-    autosize=True
+    autosize=False, height=500, width=600
 )
 
 fig_location.show()
 
+```
+
+## Patient Payer Type Analysis
+
+The horizontal bar graph below displays the frequency of patient payments by payer. This analysis reveals that New Jersey Medicare Part B J12 and Horizon BCBS of New Jersey BlueCard are the most prominent payers, suggesting a significant patient base relying on these insurance plans.
+
+```{python}
+#| include: true
 payers_count= df.groupby("Payer")['Patient Number'].count()
 payers_count.sort_values(ascending=False)
 fig = px.bar(payers_count, 
@@ -62,17 +81,5 @@ color_continuous_scale="Blues")
 fig.update_layout(xaxis_title="Number of Patients",showlegend=False)
 
 fig.show()
-
-df_new=df.copy()
-df_new['First Appointment Month']=df_new['First Appointment'].dt.month
-df_new.fillna(0, inplace=True)
-df_new['Appointment Count']=df_new['MD Appts'] +df_new['PT Appts']+df_new['OT Appts']+df_new['CHIRO Appts']+df_new['ALTER-G Appts']+df_new['CRYOTHERAPY Appts']+df_new['ESTABLISHED 1 YEAR CMO F/U Appts']+df_new['GAMEREADY Appts']+df_new['NORMATECH Appts']+df_new['SOFTWAVE Appts']
-First_Appointment = df_new.groupby("First Appointment Month")["Appointment Count"].sum()
-
-fig_month = px.bar(First_Appointment, 
-                    title="First Appointment Month Distribution")
-
-fig_month.update_layout(xaxis_title="Number of Appointments",showlegend=False)
-
-fig_month.show()
 ```
+
