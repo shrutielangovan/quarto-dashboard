@@ -5,6 +5,7 @@ execute:
 format:
     html:
         code-fold: true
+theme: cosmo
 ---
 
 ```{python}
