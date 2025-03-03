@@ -6,7 +6,7 @@ website:
   title: "Appointment-Dashboard"
   navbar:
     left:
-      - href: index.html
+      - href: index.qmd
         text: Home
       - about.qmd
 
