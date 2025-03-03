@@ -1,7 +1,77 @@
 ---
-title: "Appointment-Dashboard"
+title: "Appointment Analysis Dashboard"
+execute:
+    enabled: true
+format:
+    html:
+        code-fold: true
 ---
 
-This is a Quarto website.
+```{python}
+#| include: true
+import seaborn as sns
+import pandas as pd
+import plotly.express as px
+import plotly.graph_objects as go
+df=pd.read_excel('/Users/shrutielangovan/Desktop/Alliance Health Project/Task 1/Dashboard Prc.xlsx')
+df.head(10)
+df.columns
+df_long = pd.melt(df, 
+                  id_vars=['Patient Number','Latitude','Longitude'], 
+                  value_vars=['MD Appts', 'PT Appts', 'OT Appts','CHIRO Appts', 'ALTER-G Appts', 'CRYOTHERAPY Appts','ESTABLISHED 1 YEAR CMO F/U Appts', 'GAMEREADY Appts','NORMATECH Appts', 'SOFTWAVE Appts'], 
+                  var_name='Appointment Type', value_name='Number of Appointments')
+df_long = df_long.dropna()
+len(df_long)
 
-To learn more about Quarto websites visit <https://quarto.org/docs/websites>.
+appoinment_count= df_long.groupby("Appointment Type")['Number of Appointments'].sum()
+appoinment_count_df = appoinment_count.reset_index()
+appoinment_count_df.columns = ['Appointment Type', 'Number of Appointments']
+print(appoinment_count_df) 
+
+fig_weekly = px.bar(appoinment_count_df[appoinment_count_df['Appointment Type'].isin(['CHIRO Appts','MD Appts','OT Appts','PT Appts'])], 
+                    x="Appointment Type",
+                    y="Number of Appointments", 
+                    title="Appointment Distribution")
+fig_weekly.show()
+
+fig_location = px.scatter_mapbox(
+    df_long,
+    lon='Longitude',
+    lat='Latitude',
+    title='Recent Appointment Locations',
+    opacity=0.6,
+    color='Appointment Type',
+    mapbox_style='carto-positron',
+    color_continuous_scale=px.colors.sequential.Cividis
+)
+
+fig_location.update_layout(
+    autosize=False, height=500, width=600
+)
+
+fig_location.show()
+
+payers_count= df.groupby("Payer")['Patient Number'].count()
+payers_count.sort_values(ascending=False)
+fig = px.bar(payers_count, 
+orientation='h',
+title = "Frequency of Different Payers",
+color_continuous_scale="Blues") 
+
+fig.update_layout(xaxis_title="Number of Patients",showlegend=False)
+
+fig.show()
+
+df_new=df.copy()
+df_new['First Appointment Month']=df_new['First Appointment'].dt.month
+df_new.fillna(0, inplace=True)
+df_new['Appointment Count']=df_new['MD Appts'] +df_new['PT Appts']+df_new['OT Appts']+df_new['CHIRO Appts']+df_new['ALTER-G Appts']+df_new['CRYOTHERAPY Appts']+df_new['ESTABLISHED 1 YEAR CMO F/U Appts']+df_new['GAMEREADY Appts']+df_new['NORMATECH Appts']+df_new['SOFTWAVE Appts']
+First_Appointment = df_new.groupby("First Appointment Month")["Appointment Count"].sum()
+
+fig_month = px.bar(First_Appointment, 
+                    title="First Appointment Month Distribution")
+
+fig_month.update_layout(xaxis_title="Number of Appointments",showlegend=False)
+
+fig_month.show()
+```
